@@ -13,3 +13,16 @@ start when `ENV` or `APP_ENV` is `prod` or `production`.
 
 Mocks are consumed through the Compose files (`mocks/<name>` build contexts);
 they are excluded from every image through each service's `.dockerignore`.
+
+## Tests
+
+Run the HTTP regression suite with Python 3.12 or newer; no dependencies or
+external services are required:
+
+```bash
+python3 -m unittest discover -s tests -v
+```
+
+The suite covers token signatures and request validation, image object
+lifecycle and invalid uploads, provider responses and failure modes, and the
+production startup guards for all three mocks.

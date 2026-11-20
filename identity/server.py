@@ -18,6 +18,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 SECRET = os.environ.get("JWT_SECRET", "").encode()
 DEFAULT_TTL_SECONDS = 3600
+MAX_REQUEST_BYTES = 64 * 1024
 PRODUCTION_ENV_VALUES = {"prod", "production"}
 
 
@@ -62,9 +63,14 @@ class IdentityHandler(BaseHTTPRequestHandler):
 
         try:
             length = int(self.headers.get("Content-Length", "0"))
+            if length < 0 or length > MAX_REQUEST_BYTES:
+                raise ValueError("Invalid body size")
             body = json.loads(self.rfile.read(length) or b"{}")
-        except (ValueError, json.JSONDecodeError):
+        except (ValueError, UnicodeDecodeError):
             self._send_json(400, {"code": "INVALID_REQUEST", "message": "Invalid JSON body"})
+            return
+        if not isinstance(body, dict):
+            self._send_json(400, {"code": "INVALID_REQUEST", "message": "Body must be an object"})
             return
 
         subject = str(body.get("sub") or uuid.uuid4())
@@ -73,7 +79,14 @@ class IdentityHandler(BaseHTTPRequestHandler):
             self._send_json(400, {"code": "INVALID_REQUEST", "message": "roles must be a list of strings"})
             return
 
-        ttl = int(body.get("ttl_seconds", DEFAULT_TTL_SECONDS))
+        raw_ttl = body.get("ttl_seconds", DEFAULT_TTL_SECONDS)
+        try:
+            if isinstance(raw_ttl, bool) or not isinstance(raw_ttl, (int, str)):
+                raise ValueError("Invalid TTL")
+            ttl = int(raw_ttl)
+        except ValueError:
+            self._send_json(400, {"code": "INVALID_REQUEST", "message": "ttl_seconds must be an integer"})
+            return
         ttl = max(60, min(ttl, 86400))
         now = int(time.time())
         token = _sign(

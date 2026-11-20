@@ -23,6 +23,11 @@ Objects are stored as files under `IMAGE_STORAGE_DATA_DIR` (mounted as the
 Objects are capped at 5 MiB, matching the Product image limit. The key must be
 a relative path segment list (`pending/products/...` or `media/products/...`);
 anything with `..`, backslashes or absolute paths is rejected.
+Segments ending in `.ctype` are reserved for internal content-type metadata
+and cannot be uploaded or read as objects. Negative or invalid upload lengths
+and incomplete upload bodies return HTTP `400`; incomplete uploads leave an
+existing object intact. Overwriting without `Content-Type` clears the previous
+metadata so reads infer the type from the filename.
 
 ## Local only — never in production
 

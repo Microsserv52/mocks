@@ -32,7 +32,7 @@ def object_path(key: str) -> str | None:
     if not key or key.startswith("/") or "\\" in key:
         return None
     parts = key.split("/")
-    if any(part in ("", ".", "..") for part in parts):
+    if any(part in ("", ".", "..") or part.endswith(".ctype") for part in parts):
         return None
     path = os.path.realpath(os.path.join(DATA_DIR, *parts))
     if path != os.path.realpath(DATA_DIR) and not path.startswith(
@@ -127,12 +127,18 @@ class ImageStorageHandler(BaseHTTPRequestHandler):
         except ValueError:
             self.send_error(400, "Invalid Content-Length")
             return
+        if length < 0:
+            self.send_error(400, "Invalid Content-Length")
+            return
         if length > MAX_OBJECT_BYTES:
             self.send_json(
                 413, {"code": "OBJECT_TOO_LARGE", "message": "Object exceeds 5 MiB"}
             )
             return
         body = self.rfile.read(length) if length else b""
+        if len(body) != length:
+            self.send_error(400, "Incomplete request body")
+            return
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "wb") as handle:
             handle.write(body)
@@ -140,6 +146,8 @@ class ImageStorageHandler(BaseHTTPRequestHandler):
         if content_type:
             with open(path + ".ctype", "w", encoding="utf-8") as handle:
                 handle.write(content_type)
+        elif os.path.isfile(path + ".ctype"):
+            os.remove(path + ".ctype")
         self.send_response(201)
         self.send_header("Content-Length", "0")
         self.end_headers()

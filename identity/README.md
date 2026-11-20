@@ -13,6 +13,10 @@ curl -s -X POST http://localhost:8081/token \
 The response contains `access_token`, `token_type` and `expires_in`. Tokens are
 signed with `JWT_SECRET`, which Compose passes to both this mock and Product.
 
+The body must be a JSON object of at most 64 KiB. `roles` must be a list of
+strings. `ttl_seconds` accepts an integer or an integer string, defaults to
+3600, and is clamped to 60–86400 seconds. Invalid inputs return HTTP `400`.
+
 ## Local only — never in production
 
 The mock refuses to start when the environment declares production. If `ENV`
