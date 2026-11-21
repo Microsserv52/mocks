@@ -1,5 +1,7 @@
 # Local mocks (platform root)
 
+![Tech Stack](https://skillicons.dev/icons?i=python,docker,kubernetes)
+
 Deterministic stand-ins that let the integration stack and the individual
 services run without third-party accounts. They are development and CI
 fixtures only: no Kubernetes manifest deploys them and every mock refuses to
