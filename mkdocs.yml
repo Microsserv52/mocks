@@ -1,0 +1,38 @@
+site_name: Local Mocks
+site_description: Deterministic local stand-ins for platform integrations
+site_url: https://microsserv52.github.io/mocks/
+repo_url: https://github.com/Microsserv52/mocks
+repo_name: Microsserv52/mocks
+edit_uri: edit/main/docs/
+
+theme:
+  name: readthedocs
+  locale: en
+  highlightjs: true
+  hljs_languages:
+    - bash
+    - dockerfile
+    - json
+    - python
+
+nav:
+  - Home: index.md
+  - Getting started: getting-started.md
+  - Mocks:
+      - Identity: mocks/identity.md
+      - Image storage: mocks/image-storage.md
+      - Exchange provider: mocks/exchange-provider.md
+  - Development: development.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - tables
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+
+strict: true

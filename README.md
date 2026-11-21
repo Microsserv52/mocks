@@ -26,3 +26,17 @@ python3 -m unittest discover -s tests -v
 The suite covers token signatures and request validation, image object
 lifecycle and invalid uploads, provider responses and failure modes, and the
 production startup guards for all three mocks.
+
+## Documentation
+
+The MkDocs site contains setup instructions and the complete HTTP contracts for
+all mocks. Preview it locally with:
+
+```bash
+python3 -m pip install -r requirements-docs.txt
+python3 -m mkdocs serve
+```
+
+Run `python3 -m mkdocs build --strict` before committing documentation changes.
+Pushes to `main` publish the site to GitHub Pages through the Documentation
+workflow.
